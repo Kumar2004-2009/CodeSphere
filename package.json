@@ -1,0 +1,15 @@
+{
+  "name": "remote-code-executer-realtime",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install --prefix server && npm install --prefix client",
+    "dev": "concurrently -n server,client -c blue,green \"npm run dev --prefix server\" \"npm run start --prefix client\"",
+    "docker:build": "docker compose build",
+    "docker:up": "docker compose up",
+    "docker:down": "docker compose down",
+    "docker:sandbox": "docker build -f Docker/cpp -t rce-cpp-sandbox ."
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
