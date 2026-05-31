@@ -1,71 +1,114 @@
 # Remote-Code-Executor-Realtime
 
-Collaborative online code editor with real-time sync (Socket.IO) and C++ execution in an isolated **Docker** sandbox (or local `g++` for development).
+Collaborative online code editor with real-time synchronization using **Socket.IO** and C++ code execution in an isolated **Docker** sandbox (or local `g++` for development).
+
+---
 
 ## Prerequisites
 
-| Tool | Purpose |
-|------|---------|
-| **Node.js 18+** | Run client & server |
-| **g++** (MinGW on Windows) | Local code execution when `USE_DOCKER=false` |
-| **Docker Desktop** | Docker sandbox + full stack via Compose |
+| Tool                   | Purpose                  |
+| ---------------------- | ------------------------ |
+| Node.js 18+            | Run frontend and backend |
+| g++ (MinGW on Windows) | Local C++ execution      |
+| Docker Desktop         | Docker sandbox execution |
 
-## Quick start (local — recommended on Windows)
+---
 
-### 1. Install dependencies
+## Environment Setup
 
-```powershell
-cd Remote-Code-Executer-Realtime-main
+### Client (`client/.env`)
+
+Create a `.env` file inside the `client` folder:
+
+```env
+VITE_SERVER_URL=
+```
+
+### Server (`server/.env`)
+
+Create a `.env` file inside the `server` folder:
+
+```env
+PORT=
+USE_DOCKER=
+DOCKER_IMAGE=
+```
+
+---
+
+## Installation
+
+### 1. Install root dependencies
+
+```bash
+npm i
+```
+
+### 2. Install all frontend and backend dependencies
+
+```bash
 npm run install:all
 ```
 
-### 2. Start both apps
+### 3. Start the application
 
-**Option A — one command (from project root):**
-
-```powershell
+```bash
 npm run dev
 ```
 
-**Option B — two terminals:**
+---
 
-```powershell
-# Terminal 1 — server
-cd server
-npm install
-npm run dev
+## Application URLs
 
-# Terminal 2 — client
-cd client
-npm install
-npm start
+Frontend:
+
+```text
+http://localhost:3000
 ```
 
-### 3. Open the app
+Backend:
 
-- Frontend: **http://localhost:3000**
-- API / Socket.IO: **http://localhost:4000**
-- Health check: **http://localhost:4000/health**
+```text
+http://localhost:4000
+```
 
-Enter a name and room ID, then click **Run code** (C++ only; Python/JS are UI placeholders).
+Health Check:
 
-### Local code execution (default)
+```text
+http://localhost:4000/health
+```
 
-`server/.env` sets `USE_DOCKER=false` so the server uses **g++ on your machine**. Ensure `g++` is on your PATH:
+---
 
-```powershell
+## Local C++ Execution
+
+By default:
+
+```env
+USE_DOCKER=false
+```
+
+The server uses your local `g++` compiler.
+
+Verify installation:
+
+```bash
 g++ --version
 ```
 
 ---
 
-## Docker — C++ sandbox image only
+## Docker Sandbox Setup
 
-Build the image used to run submitted code in isolation:
+Build the sandbox image:
 
-```powershell
+```bash
 npm run docker:sandbox
-# or
+```
+
+or
+
+```bash
 docker build -f Docker/cpp -t rce-cpp-sandbox .
 ```
 
@@ -76,72 +119,48 @@ USE_DOCKER=true
 DOCKER_IMAGE=rce-cpp-sandbox
 ```
 
-Restart the server. Each run uses:
-
-```text
-docker run --rm ... rce-cpp-sandbox
-```
+Restart the server after making changes.
 
 ---
 
-## Docker — full stack (server + client + sandbox)
+## Full Docker Setup
 
-Runs everything in containers. The server container talks to the host Docker daemon to spawn sandbox containers.
+Build all images:
 
-**Requirements:** Docker Desktop running.
-
-```powershell
-# Build all images (first time or after changes)
+```bash
 npm run docker:build
+```
 
-# Start
+Start all services:
+
+```bash
 npm run docker:up
 ```
 
-Then open **http://localhost:3000**.
+Stop all services:
 
-Stop:
-
-```powershell
+```bash
 npm run docker:down
 ```
 
-> The browser still uses `http://localhost:4000` for the API (set via `VITE_SERVER_URL` in Compose).
-
 ---
 
-## Configuration
-
-### Server (`server/.env`)
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PORT` | `4000` | HTTP port |
-| `USE_DOCKER` | `false` | `true` = run code in Docker |
-| `DOCKER_IMAGE` | `rce-cpp-sandbox` | Image name for sandbox |
-
-### Client (`client/.env`)
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `VITE_SERVER_URL` | `http://localhost:4000` | Backend URL |
-
----
-
-## Project structure
+## Project Structure
 
 ```text
-client/          React + Vite frontend (port 3000)
-server/          Express + Socket.IO API (port 4000)
-Docker/cpp       Dockerfile for C++ sandbox image
-docker-compose.yml   Full stack orchestration
+client/                 React + Vite Frontend
+server/                 Express + Socket.IO Backend
+Docker/cpp              Dockerfile for C++ Sandbox
+docker-compose.yml      Full Stack Docker Setup
 ```
+
+---
 
 ## Troubleshooting
 
-| Problem | Fix |
-|---------|-----|
-| Client won’t start | Use Node 18+; run `npm install` in `client/` |
-| Run fails / compilation error | Install g++ or set `USE_DOCKER=true` and build `rce-cpp-sandbox` |
-| Docker run fails on Windows | Start Docker Desktop; build sandbox: `npm run docker:sandbox` |
-| Socket/API errors | Start server first; check `VITE_SERVER_URL` in `client/.env` |
+| Problem             | Solution                                          |
+| ------------------- | ------------------------------------------------- |
+| Client won't start  | Install Node.js 18+ and run `npm run install:all` |
+| C++ execution fails | Install g++ or enable Docker mode                 |
+| Docker errors       | Start Docker Desktop and build sandbox image      |
+| Socket/API issues   | Ensure backend is running on port 4000            |
